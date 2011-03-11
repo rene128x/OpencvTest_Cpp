@@ -12,7 +12,6 @@ using namespace std;
 #include "../lib/FloodFill.h"
 
 // obtiene una submatriz a partir de mat
-template<class T>
 Mat getSubMat(const Mat &mat, const Rect &rect);
 
 // construye un informe con el porcentaje mayor de color reconocido
