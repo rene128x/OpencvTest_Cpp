@@ -42,8 +42,8 @@ using namespace std;
 
 void recognizePieces(const Mat &tablero, const Rect &r, ConfigParser &config,
 		const vector<RangeColor> &ranges) {
-	cout << "recognizing pieces amongst " << ranges.size()
-			<< " different colors." << endl;
+//	cout << "recognizing pieces amongst " << ranges.size()
+//			<< " different colors." << endl;
 	int boardMargin = config.getProperty("board_margin");
 	int internalMargin = config.getProperty("cell_margin");
 
@@ -80,27 +80,34 @@ void recognizePieces(const Mat &tablero, const Rect &r, ConfigParser &config,
 			rectangle(parsed_board, Point(rt.x, rt.y),
 					Point(rt.x + rt.width, rt.y + rt.height), Scalar(B, G, R),
 					thickness);
-#if true
 			// TODO
-			int which = -1;
+//			int which = -1;
 			for (unsigned i = 0; i < ranges.size(); i++)
 				if (ranges[i].inRange(subCell)) {
-					if (which == -1) {
-						which = i;
+//					if (which == -1) {
+//						which = i;
 						putText(parsed_board, ranges[i].getID(),
 								Point(rt.x, rt.y + 10), FONT_HERSHEY_PLAIN,
 								0.8, Scalar(0, 255, 0));
-					} else {
-						cout << "Detected again. Ranges should be exclusive."
-								<< endl;
 						break;
+//					} else {
+//						cout << "Detected again. Ranges should be exclusive."
+//								<< endl;
+//						break;
 					}
 					//break;
-				}
+//				}
+//			if(which == -1)
+//				putText(parsed_board,"none",
+//						Point(rt.x, rt.y + 10), FONT_HERSHEY_PLAIN,
+//						0.8, Scalar(0, 255, 0));
 			//imshow("img",  img);
 			//waitKey(0);
-#endif
 		}
 
 	imshow("parsed_board center_center", parsed_board);
+	if(waitKey(0) == 's')
+	{
+			imwrite("parsed_board.png", parsed_board);
+	};
 }
