@@ -8,9 +8,9 @@ using namespace cv;
 #include <iostream>
 using namespace std;
 
-#include "../lib/FloodFill.h"
 #include "../lib/BoundingBox.h"
 #include "../lib/ConfigParser.h"
+#include "../lib/RangeColor.h"
 
 // obtiene una submatriz a partir de mat
 Mat getSubMat(const Mat &mat, const Rect &rect);

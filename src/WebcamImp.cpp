@@ -1,9 +1,9 @@
 #include "../lib/WebcamImp.h"
-
 #include "../lib/utils.h"
 
+#include <vector>
+
 void videoRutine(ConfigParser &config) {
-	cout << "using camera: " << config.getProperty("camera_device") << endl;
 
 	bool liveVideo = config.getFlag("camera");
 
@@ -30,11 +30,21 @@ void videoRutine(ConfigParser &config) {
 		}
 	}
 
+	vector<RangeColor> ranges;
+	string global_colors = config.getText("global_colors");
+	stringstream ss(stringstream::in | stringstream::out);
+	ss << global_colors << endl;
+	string s;
+	while (ss >> s)
+		ranges.push_back(RangeColor(config.getText(s), s));
+
 	int _delay = liveVideo ? config.getProperty("latency") : 0;
 	int rect_thickness = config.getProperty("rect_thickness");
-	Scalar rect_color(config.getProperty("rect_B"),
-			config.getProperty("rect_G"), config.getProperty("rect_R"));
-	cout << "rect_thickness : " << rect_thickness << endl;
+
+	int b = config.getProperty("rect_B");
+	int g = config.getProperty("rect_G");
+	int r = config.getProperty("rect_R");
+	Scalar rect_color(b, g, r);
 
 	// si es liveVideo, se ejecuta indefinidamente, de lo contrario, una sola vez
 	do {
@@ -50,16 +60,17 @@ void videoRutine(ConfigParser &config) {
 
 		BoundingBox bb(threshed, 0);
 		Rect r = bb.getRect();
+
+		recognizePieces(tablero, r, config, ranges);
+
 		rectangle(tablero, Point(r.x, r.y),
 				Point(r.x + r.width, r.y + r.height), rect_color,
 				rect_thickness);
 
-		recognizePieces(tablero, r);
-
 		imshow("tablero bottom_left", resizePic(tablero, outputSize));
-		imshow("grayscale top_left ", resizePic(grayscale, outputSize));
-		imshow("threshed bottom_right", resizePic(threshed, outputSize));
-		imshow("blurred top_right", resizePic(blurred, outputSize));
+		//imshow("grayscale bottom_right", resizePic(grayscale, outputSize));
+		imshow("threshed top_left", resizePic(threshed, outputSize));
+		//imshow("blurred top_right", resizePic(blurred, outputSize));
 
 		if (waitKey(_delay) != -1)
 			break;

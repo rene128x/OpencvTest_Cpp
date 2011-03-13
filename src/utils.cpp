@@ -1,23 +1,5 @@
 #include "../lib/utils.h"
 
-// obtiene una submatriz a partir de mat (solo para matrices de 1 solo canal)
-Mat getSubMat1C(const Mat &mat, const Rect &rect) {
-	Mat temp(Size(rect.width, rect.height), mat.type());
-	for (int x = 0; x < rect.width; x++)
-		for (int y = 0; y < rect.height; y++)
-			temp.at<uchar> (y, x) = mat.at<uchar> (rect.y + y, rect.x + x);
-	return temp;
-}
-
-// obtiene una submatriz a partir de mat (solo para matrices de 1 solo canal)
-Mat getSubMat3C(const Mat &mat, const Rect &rect) {
-	Mat temp(Size(rect.width, rect.height), mat.type());
-	for (int x = 0; x < rect.width; x++)
-		for (int y = 0; y < rect.height; y++)
-			temp.at<float> (y, x) = mat.at<float> (rect.y + y, rect.x + x);
-	return temp;
-}
-
 Mat resizePic(const Mat &source, Size size) {
 	Mat destination;
 	resize(source, destination, size);
@@ -30,7 +12,7 @@ void keepBiggestBlob(Mat &img, uchar color) {
 	int w = img.size().width;
 	int h = img.size().height;
 
-	vector < Point > blobs;
+	vector<Point> blobs;
 
 	int area = -1;
 	Point where;
@@ -55,14 +37,70 @@ void keepBiggestBlob(Mat &img, uchar color) {
 	}
 }
 
-void recognizePieces(const Mat &tablero, const Rect &rect){
-	int x = rect.x;
-	int y = rect.y;
-	int width = rect.width;
-	int height = rect.height;
+#include <iostream>
+using namespace std;
 
-//	for(int x=0; x<width; x++)
-//		for(int y=0; y<height; y++);
-	for(int row =0 ; row<8; row++)
-		for(int col= 0; col<8; col++);
+void recognizePieces(const Mat &tablero, const Rect &r, ConfigParser &config,
+		const vector<RangeColor> &ranges) {
+	cout << "recognizing pieces amongst " << ranges.size()
+			<< " different colors." << endl;
+	int boardMargin = config.getProperty("board_margin");
+	int internalMargin = config.getProperty("cell_margin");
+
+	int R = config.getProperty("grid_R");
+	int G = config.getProperty("grid_G");
+	int B = config.getProperty("grid_B");
+	int thickness = config.getProperty("grid_thickness");
+
+	int x = r.x + boardMargin;
+	int y = r.y + boardMargin;
+	int width = r.width - 2 * boardMargin;
+	int height = r.height - 2 * boardMargin;
+
+	double bw = width / 8.0;
+	double bh = height / 8.0;
+
+	Mat parsed_board = tablero.clone();
+
+	rectangle(parsed_board, Point(x, y), Point(x + width, y + height),
+			Scalar(B, G, R), thickness);
+	//imshow("parsed_board center_center", resizePic(tablero, Size(320, 240)));
+
+
+	// TODO implementar velocidad!
+	for (int row = 0; row < 8; row++)
+		for (int col = 0; col < 8; col++) {
+
+			Rect rt((int) (x + col * bw + internalMargin),
+					(int) (y + row * bh + internalMargin),
+					(int) (bw - 2 * internalMargin),
+					(int) (bh - 2 * internalMargin));
+
+			Mat subCell(parsed_board, rt);
+			rectangle(parsed_board, Point(rt.x, rt.y),
+					Point(rt.x + rt.width, rt.y + rt.height), Scalar(B, G, R),
+					thickness);
+#if true
+			// TODO
+			int which = -1;
+			for (unsigned i = 0; i < ranges.size(); i++)
+				if (ranges[i].inRange(subCell)) {
+					if (which == -1) {
+						which = i;
+						putText(parsed_board, ranges[i].getID(),
+								Point(rt.x, rt.y + 10), FONT_HERSHEY_PLAIN,
+								0.8, Scalar(0, 255, 0));
+					} else {
+						cout << "Detected again. Ranges should be exclusive."
+								<< endl;
+						break;
+					}
+					//break;
+				}
+			//imshow("img",  img);
+			//waitKey(0);
+#endif
+		}
+
+	imshow("parsed_board center_center", parsed_board);
 }

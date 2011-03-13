@@ -10,10 +10,12 @@
 
 #include <cv.h>
 #include <highgui.h>
+#include "ConfigParser.h"
+#include "RangeColor.h"
 using namespace cv;
 
 // obtiene una submatriz a partir de mat (solo para matrices de 1 solo canal)
-Mat getSubMat1C(const Mat &mat, const Rect &rect);
+//Mat getSubMat1C(const Mat &mat, const Rect &rect);
 
 // obtiene una submatriz a partir de mat (solo para matrices de 1 solo canal)
 Mat getSubMat3C(const Mat &mat, const Rect &rect);
@@ -25,6 +27,7 @@ Mat resizePic(const Mat &source, Size size);
 void keepBiggestBlob(Mat &img, uchar color);
 
 // indentifica las piezas que hay dibujas sobre el tablero
-void recognizePieces(const Mat &tablero, const Rect &rect);
+void recognizePieces(const Mat &tablero, const Rect &rect,
+		ConfigParser &config, const vector<RangeColor> &ranges);
 
 #endif /* UTILS_H_ */
